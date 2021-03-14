@@ -22,4 +22,5 @@ export const DivBoardContainer = styled.div`
 export const ButtonInterface = styled.button<IBoardButton>`
   width: calc(80vw/${(p: IBoardButton) => p.dimension});
   height: calc(80vw/${(p: IBoardButton) => p.dimension});
+  font-size: calc(60vw/${(p: IBoardButton) => p.dimension});
 `

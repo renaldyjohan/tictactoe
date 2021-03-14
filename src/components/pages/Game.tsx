@@ -25,10 +25,10 @@ function Game() {
         let newBoard = [...board];
         let newRow = [...board[rowIndex]]
         if ( player === 'player1' ) {
-          newRow[colIndex] = 'x';
+          newRow[colIndex] = 'X';
           setPlayer('player2');
         } else {
-          newRow[colIndex] = 'o';
+          newRow[colIndex] = 'O';
           setPlayer('player1');
         }
         newBoard[rowIndex] = newRow;
