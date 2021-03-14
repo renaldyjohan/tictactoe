@@ -4,6 +4,7 @@ import { DivRow, ButtonInterface, DivBoardContainer } from '../styles';
 function Game() {
   const [dimension, setDimension] = useState<number>(3);
   const [condition, setCondition] = useState<number>(3);
+  const [player, setPlayer] = useState<String>('player1');
   const boardGenerator = (dimension:number) => {
     let boardArray = [];
     for(let i = 0; i< dimension ; i++) {
@@ -23,7 +24,13 @@ function Game() {
       if (!data) {
         let newBoard = [...board];
         let newRow = [...board[rowIndex]]
-        newRow[colIndex] = 'x';
+        if ( player === 'player1' ) {
+          newRow[colIndex] = 'x';
+          setPlayer('player2');
+        } else {
+          newRow[colIndex] = 'o';
+          setPlayer('player1');
+        }
         newBoard[rowIndex] = newRow;
         setBoard(newBoard);
       }
