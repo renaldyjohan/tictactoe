@@ -9,7 +9,7 @@ import {
 } from '../styles';
 
 function Game() {
-  const [dimension, setDimension] = useState<number>(8);
+  const [dimension, setDimension] = useState<number>(3);
   const [condition, setCondition] = useState<number>(3);
   const [player, setPlayer] = useState<String>('player1');
   const [winning, setWinning] = useState<number>(0);
