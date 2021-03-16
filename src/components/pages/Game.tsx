@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
-import { DivRow, ButtonInterface, DivBoardContainer } from '../styles';
+import {
+  DivRow,
+  ButtonInterface,
+  DivBoardContainer,
+  DivWinnerContainer,
+  ButtonPlayAgain,
+  DivPlayAgainContainer,
+} from '../styles';
 
 function Game() {
-  const [dimension, setDimension] = useState<number>(3);
+  const [dimension, setDimension] = useState<number>(8);
   const [condition, setCondition] = useState<number>(3);
   const [player, setPlayer] = useState<String>('player1');
+  const [winning, setWinning] = useState<number>(0);
+  const [board, setBoard] = useState<Array<Array<string|null>>|undefined>();
+  
   const boardGenerator = (dimension:number) => {
     let boardArray = [];
     for(let i = 0; i< dimension ; i++) {
@@ -17,22 +27,25 @@ function Game() {
     return boardArray;
   };
   
-  const [board, setBoard] = useState<Array<Array<string|null>>|undefined>();
 
   const handleChange = (data: string|null, rowIndex: number, colIndex: number) => {
     if (board) {
       if (!data) {
-        let newBoard = [...board];
-        let newRow = [...board[rowIndex]]
-        if ( player === 'player1' ) {
-          newRow[colIndex] = 'X';
-          setPlayer('player2');
-        } else {
-          newRow[colIndex] = 'O';
-          setPlayer('player1');
+        if (winning === 0) {
+          let newBoard = [...board];
+          let newRow = [...board[rowIndex]]
+          if ( player === 'player1' ) {
+            newRow[colIndex] = 'X';
+            setPlayer('player2');
+          } else {
+            newRow[colIndex] = 'O';
+            setPlayer('player1');
+          }
+          newBoard[rowIndex] = newRow;
+          setBoard(newBoard);
+          onWinning(newBoard);
+          winningGenerator(newBoard, dimension, condition);
         }
-        newBoard[rowIndex] = newRow;
-        setBoard(newBoard);
       }
     }
   }
@@ -53,31 +66,189 @@ function Game() {
       }
     }
     
-    const layoutGenerator = (data:Array<Array<string|null>>) => {
-      return (
-        <DivBoardContainer>
-          {
-            data.map((row, rowIndex) => {
-              return (
-                <DivRow key={`row${rowIndex}`} >
-                  {
-                    row.map((column, columnIndex) => {
-                      return columnGenerator(column, rowIndex, columnIndex);
-                    })
+  const winningGenerator = (data:Array<Array<string|null>> , boardDimension: number, winningCondition: number) => {
+    let count: number = 0;
+    let row: number, col: number;
+    // horizontal check
+    for (row = 0; row < boardDimension; row++) {
+      count = 0;
+      for(col = 0; col < boardDimension; col++) {
+        if (data[row][col] === 'X') {
+          for(let i=col,j=0; i< col+winningCondition; i++, j++) {
+            if(data[row][col+j] === 'X') {
+              count+=1;
+              if (count === winningCondition) {
+                setWinning(1);
+              }
+            } else {
+              count = 0;
+              break;
+            }
+          }              
+          count=0;
+        } else if (data[row][col] === 'O') {
+          for(let i=col,j=0; i< col+winningCondition; i++, j++) {
+            if(data[row][col+j] === 'O') {
+              count+=1;
+              if (count === winningCondition) {
+                console.log('win 2')
+              }
+            } else {
+              count = 0;
+              break;
+            }
+          }              
+          count=0;
+        }
+      }
+    }
+    // vertical check
+    for(col = 0; col < boardDimension; col++) {
+      count = 0;
+      for (row = 0; row < boardDimension; row++) {
+        if (data[row][col] === 'X') {
+          for(let i=row,j=0; i< row+winningCondition; i++, j++) {
+            if (row <= boardDimension-winningCondition) {
+              if(data[row+j][col] === 'X') {
+                count+=1;
+                if (count === winningCondition) {
+                  setWinning(1);
+                }
+              } else {
+                count = 0;
+                break;
+              }
+            }
+          }              
+          count=0;
+        } else if (data[row][col] === 'O') {
+          for (let i=row,j=0; i< row+winningCondition; i++, j++) {
+            if (row <= boardDimension-winningCondition) {
+              if (data[row+j][col] === 'O') {
+                count+=1;
+                if (count === winningCondition) {
+                  setWinning(2);
+                }
+              } else {
+                count = 0;
+                break;
+              }
+            }
+          }              
+          count=0;
+        }
+      }
+    }
+    // diagonal check
+    for (row = 0; row < boardDimension; row++) {
+      count = 0;  
+      for(col = 0; col < boardDimension; col++) {
+        if (data[row][col] === 'X') {
+          for(let i=row,j=0; i< row+winningCondition; i++, j++) {
+            if (row < boardDimension-winningCondition) {
+              if(data[row+j][col+j] === 'X') {
+                count+=1;
+                if (count === winningCondition) {
+                  setWinning(1);
+                }
+              } else {
+                count = 0;
+                break;
+              }
+            }
+          }              
+          count=0;
+        } else if (data[row][col] === 'O') {
+          for(let i=row,j=0; i< row+winningCondition; i++, j++) {
+            if (row < boardDimension-winningCondition) {
+              if(data[row+j][col+j] === 'O') {
+                count+=1;
+                if (count === winningCondition) {
+                  setWinning(2);
+                }
+              } else {
+                count = 0;
+                break;
+              }
+            }
+          }              
+          count=0;
+        } 
+      }
+    }
+
+    // anti-diagonal check
+    for (row = 0; row < boardDimension; row++) {
+      count = 0;  
+      for(col = 0; col < boardDimension; col++) {
+        if (data[row][col] === 'X') {
+          for(let i=row,j=0; i< row+winningCondition; i++, j++) {
+            if (row <= boardDimension-winningCondition) {
+              if (col-j>=0) {
+                if(data[row+j][col-j] === 'X') {
+                  count+=1;
+                  if (count === winningCondition) {
+                    setWinning(1);
                   }
-                </DivRow>
-              )    
-            })
-          }
-        </DivBoardContainer>
-      )
+                } else {
+                  count = 0;
+                  break;
+                }
+              }
+            }
+          }              
+          count=0;
+        } else if (data[row][col] === 'O') {
+          for(let i=row,j=0; i< row+winningCondition; i++, j++) {
+            if (row <= boardDimension-winningCondition) {
+              if (col-j>=0) {
+                if(data[row+j][col-j] === 'O') {
+                  count+=1;
+                  if (count === winningCondition) {
+                    setWinning(2);
+                  }
+                } else {
+                  count = 0;
+                  break;
+                }
+              }
+            }
+          }              
+          count=0;
+        } 
+      }
+    }
+  }  
+
+  const layoutGenerator = (data:Array<Array<string|null>>) => {
+    return (
+      <DivBoardContainer>
+        {
+          data.map((row, rowIndex) => {
+            return (
+              <DivRow key={`row${rowIndex}`} >
+                {
+                  row.map((column, columnIndex) => {
+                    return columnGenerator(column, rowIndex, columnIndex);
+                  })
+                }
+              </DivRow>
+            )    
+          })
+        }
+      </DivBoardContainer>
+    )
   }
   
   const onSubmit = (number: number | undefined) => {
     if(number) {
-      setDimension(number);
-      if(dimension) {
-        setBoard(boardGenerator(dimension))
+      if (condition === 3 && dimension>3){
+        alert('winning condition have to be more than 3 if board dimension is more than 3')
+      } else {
+        setDimension(number);
+        if(dimension) {
+          setBoard(boardGenerator(dimension))
+        }
       }
     }
   }
@@ -102,12 +273,80 @@ function Game() {
     }
   }
 
+  const onWinning = (board: Array<Array<string|null>>) => {
+    let winCon = 0;
+    for (let i=0; i< board.length; i++) {
+      for (let j=0; j< board[i].length; j++) {
+        // console.log(board[i][j])
+        for (let k=1; k<dimension; k++) {
+          const newCol= i+k;
+          if (board[i][j] && newCol<dimension) {
+            if (board[i][j] === board[i+k][j]) {
+              winCon+=1;
+            }
+          } else {
+            return
+          }
+        }
+        if (winCon < dimension) {
+          // console.log(board[i][j],winCon)
+          winCon = 0;
+        }
+      }
+    }
+  }
+  
+  const onReset = () => {
+    setBoard(undefined);
+    setDimension(8);
+    setCondition(3);
+    setPlayer('player1');
+    setWinning(0);
+  }
+
   return (
     <div>
+      { winning === 0
+        ?
+          board
+          ? 
+            (player === 'player1') ?
+            <>
+              <DivWinnerContainer>Player 1</DivWinnerContainer>
+              <DivPlayAgainContainer>
+                <ButtonPlayAgain onClick={() => onReset()} >Reset</ButtonPlayAgain>
+              </DivPlayAgainContainer>
+            </>
+            :
+            <>
+              <DivWinnerContainer>Player 2</DivWinnerContainer>
+              <DivPlayAgainContainer>
+                <ButtonPlayAgain onClick={() => onReset()} >Reset</ButtonPlayAgain>
+              </DivPlayAgainContainer>
+            </>
+          :
+          null
+        :
+          winning === 1
+          ?
+          <>
+            <DivWinnerContainer>The Winner is Player 1</DivWinnerContainer>
+            <DivPlayAgainContainer>
+              <ButtonPlayAgain onClick={() => onReset()} >play again</ButtonPlayAgain>
+            </DivPlayAgainContainer>
+          </>
+          :
+          <>
+            <DivWinnerContainer>The Winner is Player 2</DivWinnerContainer>
+            <DivPlayAgainContainer>
+              <ButtonPlayAgain onClick={() => onReset()} >play again</ButtonPlayAgain>
+            </DivPlayAgainContainer>
+          </>
+      }
       {
         board ?
         layoutGenerator(board) :
-        <form>
+        <>
           <div>
             <label>
               Dimension:
@@ -120,8 +359,8 @@ function Game() {
               <input type="number" name="condition" value={condition} onChange={e => onConditionChange(parseInt(e.target.value))} />
             </label>
           </div>
-          <input type="submit" value="Submit" onClick={() => onSubmit(dimension)} />
-        </form>
+          <input type="submit" value="Start" onClick={() => onSubmit(dimension)} />
+        </>
       }
     </div>
   );
