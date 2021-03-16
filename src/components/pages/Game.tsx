@@ -43,7 +43,6 @@ function Game() {
           }
           newBoard[rowIndex] = newRow;
           setBoard(newBoard);
-          onWinning(newBoard);
           winningGenerator(newBoard, dimension, condition);
         }
       }
@@ -91,7 +90,7 @@ function Game() {
             if(data[row][col+j] === 'O') {
               count+=1;
               if (count === winningCondition) {
-                console.log('win 2')
+                setWinning(2);
               }
             } else {
               count = 0;
@@ -270,29 +269,6 @@ function Game() {
       setCondition(3);
     } else {
       setCondition(value);
-    }
-  }
-
-  const onWinning = (board: Array<Array<string|null>>) => {
-    let winCon = 0;
-    for (let i=0; i< board.length; i++) {
-      for (let j=0; j< board[i].length; j++) {
-        // console.log(board[i][j])
-        for (let k=1; k<dimension; k++) {
-          const newCol= i+k;
-          if (board[i][j] && newCol<dimension) {
-            if (board[i][j] === board[i+k][j]) {
-              winCon+=1;
-            }
-          } else {
-            return
-          }
-        }
-        if (winCon < dimension) {
-          // console.log(board[i][j],winCon)
-          winCon = 0;
-        }
-      }
     }
   }
   
